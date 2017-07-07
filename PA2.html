@@ -127,9 +127,7 @@ $(document).ready(function () {
 <div id="synopsis" class="section level2">
 <h2>1. SYNOPSIS</h2>
 <p>The National Oceanic and Atmospheric Administration (NOAA) maintains a public database for storm events. The data that is collected here displays information on the type of storm and details like location, date, estimates for damage to property as well as the number of human victims of the storm. In this report we investigate which type of events are the most harmful to the population and economically between the period of 1996 and 2011.</p>
-<p>From this analyis it is clear that tornadoes have the highest number of victims, causing the highest number of injuries and the second highest number of fatalities, closely following excessive heat events. Besides tornadoes, other major weather types having a high number of victims were excessive heat events and floods.<br />
-In terms of economic costs however, weather types that occur on a larger scale and have a longer timespan than when compared to tornadoes, seem to have more impact. The leading weather type in terms of costs were floods, having the highest cost in property damage and coming in second in terms of crop damage, being preceded by droughts.<br />
-Furthermore, it appears that the costs for crop damage do not seem to be a major factor in the total costs of damages caused by weather events, as these are majorily governed by costs for property damage. Besides floods, other major weather types having a high economical impact were hurricanes/typhoons and storm surges.</p>
+<p>From this analysis it is clear that tornadoes have the highest number of victims, causing the highest number of injuries and the second highest number of fatalities, closely following excessive heat events. In terms of economic costs however, weather types that occur on a larger scale and have a longer timespan than when compared to tornadoes, seem to have more impact. The leading weather type in terms of costs were floods, having the highest cost in property damage and coming in second in terms of crop damage, being preceded by droughts.</p>
 <hr />
 </div>
 <div id="introduction" class="section level2">
@@ -154,6 +152,39 @@ Furthermore, it appears that the costs for crop damage do not seem to be a major
 </div>
 <div id="data-processing" class="section level2">
 <h2>4. DATA PROCESSING</h2>
+<p>Set options ans load libraries.</p>
+<pre class="r"><code>knitr::opts_chunk$set(echo = TRUE)
+
+# Load in the needed libraries
+library(ggplot2)</code></pre>
+<pre><code>## Warning: package 'ggplot2' was built under R version 3.2.5</code></pre>
+<pre class="r"><code>library(dplyr)</code></pre>
+<pre><code>## Warning: package 'dplyr' was built under R version 3.2.5</code></pre>
+<pre><code>## 
+## Attaching package: 'dplyr'</code></pre>
+<pre><code>## The following objects are masked from 'package:stats':
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>library(plyr)</code></pre>
+<pre><code>## Warning: package 'plyr' was built under R version 3.2.5</code></pre>
+<pre><code>## -------------------------------------------------------------------------</code></pre>
+<pre><code>## You have loaded plyr after dplyr - this is likely to cause problems.
+## If you need functions from both plyr and dplyr, please load plyr first, then dplyr:
+## library(plyr); library(dplyr)</code></pre>
+<pre><code>## -------------------------------------------------------------------------</code></pre>
+<pre><code>## 
+## Attaching package: 'plyr'</code></pre>
+<pre><code>## The following objects are masked from 'package:dplyr':
+## 
+##     arrange, count, desc, failwith, id, mutate, rename, summarise,
+##     summarize</code></pre>
+<pre class="r"><code>library(reshape2)</code></pre>
+<pre><code>## Warning: package 'reshape2' was built under R version 3.2.5</code></pre>
+<pre class="r"><code># Adjust scientific notation
+options(scipen=999)</code></pre>
 <p>Download, unzip and load data into a dataframe called <code>storm</code>. As data in the earlier years of the dataset is likely to be skewed due to a lack of good records, a subset of the more recent years was made. This date was arbitrarily set at 1996-01-01.</p>
 <pre class="r"><code># Load in the data
 setwd(&quot;/Users/sservaes/datasciencecoursera/RepData_PeerAssessment2&quot;)

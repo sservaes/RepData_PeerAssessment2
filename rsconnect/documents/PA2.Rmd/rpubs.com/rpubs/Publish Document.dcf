@@ -1,0 +1,8 @@
+name: Publish Document
+title:
+account: rpubs
+server: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/289705/ec14f971ee884c638796d5136fa58d88
+bundleId: https://api.rpubs.com/api/v1/document/289705/ec14f971ee884c638796d5136fa58d88
+url: http://rpubs.com/StijnS/289705
+when: 1499422397.85158
