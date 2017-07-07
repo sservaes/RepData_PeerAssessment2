@@ -1,0 +1,5 @@
+*.bz2
+PA2_cache/
+*.RData
+*.Rhistory
+*.DS_Store
