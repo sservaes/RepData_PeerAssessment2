@@ -1,7 +1,7 @@
 # Coursera: Reproducible Research
 ## Assignment 2
 This repository contains the analysis for the Storm data as part of Assignment 2 of the Coursera course on Reproducible Research. Below is a brief synopsis of the findings, an introduction to the project and which data is used.  
-The full analysis of the data can be found in the file 'PA2.md'.
+The full analysis of the data can be found in the file `PA2.md`.
 
 ## 1. SYNOPSIS
 
