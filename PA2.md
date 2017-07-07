@@ -1,10 +1,16 @@
-# The effects of severe weather events on population health and economics.
+# The effects of severe weather events on population health and economics between 1996 and 2011.
 Stijn Servaes  
 06 July 2017  
 
 
 
 ## 1. SYNOPSIS
+
+The National Oceanic and Atmospheric Administration (NOAA) maintains a public database for storm events. The data that is collected here displays information on the type of storm and details like location, date, estimates for damage to property as well as the number of human victims of the storm. In this report we investigate which type of events are the most harmful to the population and economically between the period of 1996 and 2011.  
+
+From this analyis it is clear that tornadoes have the highest number of victims, causing the highest number of injuries and the second highest number of fatalities, closely following excessive heat events. Besides tornadoes, other major weather types having a high number of victims were excessive heat events and floods.  
+In terms of economic costs however, weather types that occur on a larger scale and have a longer timespan than when compared to tornadoes, seem to have more impact. The leading weather type in terms of costs were floods, having the highest cost in property damage and coming in second in terms of crop damage, being preceded by droughts.  
+Furthermore, it appears that the costs for crop damage do not seem to be a major factor in the total costs of damages caused by weather events, as these are majorily governed by costs for property damage. Besides floods, other major weather types having a high economical impact were hurricanes/typhoons and storm surges.
 
 ***
 
@@ -254,7 +260,7 @@ print(table_property, row.names = FALSE)
 ##        STORM SURGE     43193536000
 ```
 
-The highest amount of injuries were seen in the following 3 weather types:
+The highest amount of crop damage were seen in the following 3 weather types:
 
 
 ```r
@@ -269,7 +275,7 @@ print(table_crops, row.names = FALSE)
 ##  HURRICANE  2741410000
 ```
 
-The highest amount of injuries and fatalities combined were seen in the following 3 weather types:
+The highest amount of total costs were seen in the following 3 weather types:
 
 
 ```r
@@ -283,3 +289,6 @@ print(table_eco, row.names = FALSE)
 ##  HURRICANE/TYPHOON  71913712800
 ##        STORM SURGE  43193541000
 ```
+
+
+From this analysis it is clear that between 1996 and 2011, weather type FLOOD had the highest amount of costs, with in total 148.92 billion USD. In terms of property damage weather type FLOOD had the highest cost with 143.94 billion USD. In terms of crop damage weather type DROUGHT had the highest cost with 13.37 billion USD.
