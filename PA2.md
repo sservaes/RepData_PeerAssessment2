@@ -61,13 +61,25 @@ In order to identify which severe weather type had the most influence on populat
 
 ```r
 # Summarise the dataset by fatalities and injuries.
-EVTYPE_pop <- ddply(storm_select, ~EVTYPE, summarise, fatalities = sum(FATALITIES), injuries = sum(INJURIES), affected_population = sum(FATALITIES)+sum(INJURIES))
+EVTYPE_pop <- ddply(storm_select, ~EVTYPE, summarise, 
+                    fatalities = sum(FATALITIES), 
+                    injuries = sum(INJURIES), 
+                    affected_population = sum(FATALITIES)+sum(INJURIES))
+
+# Determine the worst weather types (those that affect more that 1000 people).
+EVTYPE_pop_worst <- EVTYPE_pop[which(EVTYPE_pop$affected_population>1000),]
+
+
+# Melt the data according to EVTYPE by fatalities and injuries.
+EVTYPE_pop_melt <- melt(EVTYPE_pop_worst, id.vars = "EVTYPE", 
+                        measure.vars =  c("fatalities", "injuries"), 
+                        variable.name="severity", value.name="health")
 ```
 
 In order to identify which severe weather type had the most influence on economics, the data was further processed as follows:
 
 * Total damages were calculated taking the exponential into account.
-* 
+* In order to identify the worst severe weather types in respect to economics, a variable `EVTYPE_eco_worst` was made which grouped all the weather types that had a total cost higher than 5 billion USD (property or crops damage).
 
 
 ```r
@@ -83,14 +95,16 @@ storm_select$CROPDMGTOT[which(storm_select$CROPDMGEXP=="K")] <- storm_select$CRO
 storm_select$CROPDMGTOT[which(storm_select$CROPDMGEXP=="M")] <- storm_select$CROPDMG[which(storm_select$CROPDMGEXP=="M")] * 1000000
 storm_select$CROPDMGTOT[which(storm_select$CROPDMGEXP=="B")] <- storm_select$CROPDMG[which(storm_select$CROPDMGEXP=="B")] * 1000000000
 
+# Summarise the dataset by property and crop damage.
 EVTYPE_eco <- ddply(storm_select, ~EVTYPE, summarise, property_damage = sum(PROPDMGTOT), crop_damage = sum(CROPDMGTOT), total_costs = sum(PROPDMGTOT)+sum(CROPDMGTOT))
 
-# Melt the data according to EVTYPE by property_damage and crop_damage
-EVTYPE_eco_melt <- melt(EVTYPE_eco, EVTYPE = c(EVTYPE_eco$property_damage, EVTYPE_eco$crop_damage))
-```
+# Determine the worst weather types for economics (those that have a total cost higher than 5 billion USD).
+EVTYPE_eco_worst <- EVTYPE_eco[which(EVTYPE_eco$total_costs>5000000000),]
 
-```
-## Using EVTYPE as id variables
+# Melt the data according to EVTYPE by property_damage and crop_damage
+EVTYPE_eco_melt <- melt(EVTYPE_eco_worst, id.vars = "EVTYPE", 
+                        measure.vars =  c("crop_damage", "property_damage"), 
+                        variable.name="damage_type", value.name="damage_cost")
 ```
 
 ***
@@ -103,9 +117,6 @@ In order to identify which types of events (as indicated in the 𝙴𝚅𝚃𝚈
 
 
 ```r
-# Determine the worst weather types (those that affect more that 1000 people).
-EVTYPE_pop_worst <- EVTYPE_pop[which(EVTYPE_pop$affected_population>1000),]
-
 # Data used for the plot.
 print(EVTYPE_pop_worst, row.names = FALSE)
 ```
@@ -126,24 +137,17 @@ print(EVTYPE_pop_worst, row.names = FALSE)
 ```
 
 ```r
-# Generate the fatalities plot.
-plot_fatalities <- ggplot(EVTYPE_pop_worst, aes(x = EVTYPE, y = fatalities/1000)) +
-        geom_bar(stat = "identity") +
-        theme(axis.text.x = element_text(angle = 90), axis.title.x = element_blank(),
-              plot.margin = unit(c(1,1,1,1), "cm")) +
-        ggtitle("Fatalities (1996 - 2011)") +
-        ylab("Fatalities (in thousands)")
-
-# Generate the injuries plot.
-plot_injuries <- ggplot(EVTYPE_pop_worst, aes(x = EVTYPE, y = injuries/1000)) + 
-        geom_bar(stat = "identity") +
-        theme(axis.text.x = element_text(angle = 90), axis.title.x = element_blank(),
-              plot.margin = unit(c(1,1,1,1), "cm")) + 
-        ggtitle("Injuries (1996 - 2011)") + 
-        ylab("Injuries (in thousands)")
-
-# Arrange the two plots together.
-grid.arrange(plot_fatalities, plot_injuries, ncol = 2)
+# Generate the combined plot.
+plot_pop <- ggplot(EVTYPE_pop_melt, aes(x = reorder(EVTYPE, -health), y = health/1000)) +
+        geom_bar(stat = "identity", aes(fill = severity)) +
+        theme(axis.text.x = element_text(angle = 45, size=8, hjust = 1, vjust = 1), 
+              axis.title.x = element_blank()) + 
+        ggtitle("Fatalities and Injuries (1996 - 2011)") + 
+        ylab("Number of people (in thousands)") +
+        scale_fill_manual(values=c("cornflowerblue", "coral1"), 
+                          labels = c("Fatalities", "Injuries"), 
+                          name = "Severity")
+plot_pop
 ```
 
 ![](PA2_files/figure-html/plot_population-1.png)<!-- -->
@@ -151,7 +155,8 @@ grid.arrange(plot_fatalities, plot_injuries, ncol = 2)
 From the plots it is clear that in terms of fatalities the following 3 weather types have the highest numbers. 
 
 ```r
-print(EVTYPE_pop_worst[order(-EVTYPE_pop_worst$fatalities),][1:3,1:2], row.names = FALSE)
+table_fatalities <- EVTYPE_pop[order(-EVTYPE_pop$fatalities),][1:3,1:2]
+print(table_fatalities, row.names = FALSE)
 ```
 
 ```
@@ -165,7 +170,8 @@ The highest amount of injuries were seen in the following 3 weather types:
 
 
 ```r
-print(EVTYPE_pop_worst[order(-EVTYPE_pop_worst$injuries),][1:3,c(1,3)], row.names = FALSE)
+table_injuries <- EVTYPE_pop[order(-EVTYPE_pop$injuries),][1:3,c(1,3)]
+print(table_injuries, row.names = FALSE)
 ```
 
 ```
@@ -179,7 +185,8 @@ The highest amount of injuries and fatalities combined were seen in the followin
 
 
 ```r
-print(EVTYPE_pop_worst[order(-EVTYPE_pop_worst$injuries),][1:3,c(1,4)], row.names = FALSE)
+table_combined <- EVTYPE_pop[order(-EVTYPE_pop$injuries),][1:3,c(1,4)]
+print(table_combined, row.names = FALSE)
 ```
 
 ```
@@ -189,15 +196,14 @@ print(EVTYPE_pop_worst[order(-EVTYPE_pop_worst$injuries),][1:3,c(1,4)], row.name
 ##  EXCESSIVE HEAT                8188
 ```
 
+From this analysis it is clear that between 1996 and 2011, weather type TORNADO affected the highest amount of people, with in total 22178 people affected. In terms of injuries weather type TORNADO had the highest amount of people with 20667 injuries. In terms of fatalities weather type EXCESSIVE HEAT had the highest amount of people with 1797 fatalities.
+
 ### 5.2 Economic consequences
 
 In order to identify which types of events (as indicated in the 𝙴𝚅𝚃𝚈𝙿𝙴 variable) are most harmful with respect to population health in the United States between 1996 and 2011, the variables `fatalities` and `injuries` were plotted between that time period.
 
 
 ```r
-# Determine the worst weather types for economics (those that have a total cost higher than 5 billion USD).
-EVTYPE_eco_worst <- EVTYPE_eco[which(EVTYPE_eco$total_costs>5000000000),]
-
 # Data used for the plot.
 EVTYPE_eco_worst <- EVTYPE_eco_worst[order(-EVTYPE_eco_worst$total_costs),]
 print(EVTYPE_eco_worst, row.names = FALSE)
@@ -220,17 +226,60 @@ print(EVTYPE_eco_worst, row.names = FALSE)
 ```
 
 ```r
-# Melt the data according to EVTYPE by property_damage and crop_damage
-EVTYPE_eco_melt <- melt(EVTYPE_eco_worst, id.vars = "EVTYPE", measure.vars =  c("crop_damage", "property_damage"), variable.name="damage_type", value.name="damage_cost")
-
-# Generate the fatalities plot.
+# Generate the combined plot.
 plot_eco <- ggplot(EVTYPE_eco_melt, aes(x = reorder(EVTYPE, -damage_cost), y = damage_cost/1000000000)) +
         geom_bar(stat = "identity", aes(fill = damage_type)) +
-        theme(axis.text.x = element_text(angle = 90), axis.title.x = element_blank()) + 
+        theme(axis.text.x = element_text(angle = 45, size=8, hjust = 1, vjust = 1), axis.title.x = element_blank()) + 
         ggtitle("Economic Costs (1996 - 2011)") + 
         ylab("USD (in billions)") +
-        scale_fill_manual(values=c("cornflowerblue", "coral1"))
+        scale_fill_manual(values=c("cornflowerblue", "coral1"), 
+                          labels = c("Damage to crops", "Damage to property"), 
+                          name = "Damage type")
 plot_eco
 ```
 
 ![](PA2_files/figure-html/plot_economics-1.png)<!-- -->
+
+From the plots it is clear that in terms of property damage the following 3 weather types have the highest numbers. 
+
+```r
+table_property <- EVTYPE_eco[order(-EVTYPE_eco$property_damage),][1:3,1:2]
+print(table_property, row.names = FALSE)
+```
+
+```
+##             EVTYPE property_damage
+##              FLOOD    143944833550
+##  HURRICANE/TYPHOON     69305840000
+##        STORM SURGE     43193536000
+```
+
+The highest amount of injuries were seen in the following 3 weather types:
+
+
+```r
+table_crops <- EVTYPE_eco[order(-EVTYPE_eco$crop_damage),][1:3,c(1,3)]
+print(table_crops, row.names = FALSE)
+```
+
+```
+##     EVTYPE crop_damage
+##    DROUGHT 13367566000
+##      FLOOD  4974778400
+##  HURRICANE  2741410000
+```
+
+The highest amount of injuries and fatalities combined were seen in the following 3 weather types:
+
+
+```r
+table_eco <- EVTYPE_eco[order(-EVTYPE_eco$total_costs),][1:3,c(1,4)]
+print(table_eco, row.names = FALSE)
+```
+
+```
+##             EVTYPE  total_costs
+##              FLOOD 148919611950
+##  HURRICANE/TYPHOON  71913712800
+##        STORM SURGE  43193541000
+```
